@@ -1,0 +1,86 @@
+version: "0.1"
+
+name: careful-feature
+
+description: >
+  Plan, independently review, implement, verify,
+  and manually inspect a feature.
+
+start: plan
+
+steps:
+  plan:
+    type: agent
+    role: main
+
+    prompt: |
+      Inspect the repository and create a concrete implementation plan.
+
+      Do not modify project files during this step.
+
+    next: review_plan
+
+  review_plan:
+    type: agent
+    role: subagent
+    name: plan-reviewer
+
+    prompt: |
+      Review the proposed implementation plan independently.
+
+      Check whether it:
+      - solves the requested task;
+      - fits the existing architecture;
+      - avoids unnecessary complexity;
+      - includes appropriate verification;
+      - misses any important implementation work.
+
+      Return either approved or changes_required.
+
+    result:
+      type: choice
+
+      options:
+        - approved
+        - changes_required
+
+    transitions:
+      approved: implement
+      changes_required: plan
+
+  implement:
+    type: agent
+    role: main
+
+    prompt: |
+      Implement the approved plan.
+
+      Keep the implementation scoped to the requested task.
+
+    next: verify
+
+  verify:
+    type: agent
+    role: main
+
+    prompt: |
+      Verify the completed implementation.
+
+      Run the relevant automated checks and inspect the implementation for obvious regressions.
+
+      Fix problems found during this step before completing it.
+
+    next: human_review
+
+  human_review:
+    type: human
+
+    message: |
+      Manually review and test the implementation.
+
+    transitions:
+      approve: done
+      changes_required: implement
+
+  done:
+    type: end
