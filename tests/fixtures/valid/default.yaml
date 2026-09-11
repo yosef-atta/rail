@@ -1,0 +1,79 @@
+version: "0.1"
+
+name: default
+
+description: >
+  Default coding workflow for planned and verified implementation.
+
+start: plan
+
+steps:
+  plan:
+    type: agent
+    role: main
+
+    prompt: |
+      Create an implementation plan for the requested task.
+      Do not modify code.
+
+    next: review_plan
+
+  review_plan:
+    type: agent
+    role: subagent
+
+    name: plan-reviewer
+
+    prompt: |
+      Review the proposed implementation plan critically.
+
+      Look for:
+      - missing work;
+      - incorrect assumptions;
+      - unnecessary complexity;
+      - architectural risks;
+      - verification gaps.
+
+    result:
+      type: choice
+      options:
+        - approved
+        - changes_required
+
+    transitions:
+      approved: implement
+      changes_required: plan
+
+  implement:
+    type: agent
+    role: main
+
+    prompt: |
+      Implement the approved plan.
+
+    next: verify
+
+  verify:
+    type: agent
+    role: main
+
+    prompt: |
+      Verify the implementation.
+
+      Run the relevant tests and checks.
+      Fix any problems discovered during verification before completing this step.
+
+    next: human_review
+
+  human_review:
+    type: human
+
+    message: |
+      Review and manually verify the implementation.
+
+    transitions:
+      approve: done
+      changes_required: implement
+
+  done:
+    type: end

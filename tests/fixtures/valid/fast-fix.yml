@@ -1,0 +1,23 @@
+version: "0.1"
+
+name: fast-fix
+
+description: Minimal workflow for rapid bug fixing.
+
+start: fix
+
+steps:
+  fix:
+    type: agent
+    role: main
+    prompt: Diagnose and fix the bug.
+    next: test
+
+  test:
+    type: agent
+    role: main
+    prompt: Run tests to verify the bug is resolved without regressions.
+    next: done
+
+  done:
+    type: end
