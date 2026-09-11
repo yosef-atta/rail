@@ -1461,8 +1461,8 @@ Rail should prove reliable external workflow enforcement before adding orchestra
 
 The initial milestone proves the core idea.
 
-* [ ] Define and validate Workflow Language v0.1.
-* [ ] Load global `.yml` and `.yaml` workflows.
+* [x] Define and validate Workflow Language v0.1.
+* [x] Load global `.yml` and `.yaml` workflows.
 * [ ] Implement the workflow runtime.
 * [ ] Implement persistent workflow runs.
 * [ ] Implement `main` agent steps.
@@ -1478,7 +1478,7 @@ The initial milestone proves the core idea.
 * [ ] Add `workflow_human_action`.
 * [ ] Add `rail init`.
 * [ ] Add `rail workflows`.
-* [ ] Add `rail validate`.
+* [x] Add `rail validate`.
 * [ ] Add `rail status`.
 * [ ] Add managed Rail blocks to `AGENTS.md` and `CLAUDE.md`.
 * [ ] Add `setup.ps1` for local installation and MCP setup guidance.
@@ -1588,9 +1588,9 @@ Establish the foundational data structures, file loader, and comprehensive valid
 * Validating statically at load time guarantees that invalid definitions (such as missing targets, dangling loops, invalid step roles, or ambiguous transitions) are caught before any runtime execution state is instantiated.
 
 ### Roadmap Items Covered
-* [ ] Define and validate Workflow Language v0.1.
-* [ ] Load global `.yml` and `.yaml` workflows.
-* [ ] Add `rail validate` (core validation engine).
+* [x] Define and validate Workflow Language v0.1.
+* [x] Load global `.yml` and `.yaml` workflows.
+* [x] Add `rail validate` (core validation engine).
 
 ### Scope & Deliverables
 1. **Schema & Domain Models**:
@@ -1737,7 +1737,7 @@ Deliver operator CLI tooling, automated project instruction injection (`rail ini
 ### Roadmap Items Covered
 * [ ] Add `rail init`.
 * [ ] Add `rail workflows`.
-* [ ] Add `rail validate` (CLI command).
+* [x] Add `rail validate` (CLI command).
 * [ ] Add `rail status`.
 * [ ] Add managed Rail blocks to `AGENTS.md` and `CLAUDE.md`.
 * [ ] Add `setup.ps1` for local installation and MCP setup guidance.
@@ -1846,11 +1846,9 @@ The coding agent remains responsible for performing the engineering work inside 
 
 # Current Status
 
-Rail is currently in the POC design stage.
+Phase 1 (**Workflow Specification, Loader & Static Validator**) has been implemented and fully verified with 78 unit tests and 100% validator test coverage.
 
-The initial workflow language, CLI boundary, MCP interface, initialization model, and scope have been defined.
-
-Implementation has not yet begun.
+Phase 2 (**Persistence Layer & Durable State Store**) is next.
 
 ---
 
