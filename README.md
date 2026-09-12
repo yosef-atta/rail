@@ -1470,12 +1470,12 @@ The initial milestone proves the core idea.
 * [x] Implement choice results.
 * [x] Implement human gates.
 * [x] Implement workflow transitions and loops.
-* [ ] Implement MCP server.
-* [ ] Add `workflow_start`.
-* [ ] Add `workflow_status`.
-* [ ] Add `workflow_step`.
-* [ ] Add `workflow_complete_step`.
-* [ ] Add `workflow_human_action`.
+* [x] Implement MCP server.
+* [x] Add `workflow_start`.
+* [x] Add `workflow_status`.
+* [x] Add `workflow_step`.
+* [x] Add `workflow_complete_step`.
+* [x] Add `workflow_human_action`.
 * [ ] Add `rail init`.
 * [ ] Add `rail workflows`.
 * [x] Add `rail validate`.
@@ -1697,12 +1697,12 @@ Expose the Phase 3 runtime engine to coding agents via the Model Context Protoco
 * **Why it cannot be deferred past Phase 6**: Agents cannot interact with Rail during integration tests without a functioning MCP server.
 
 ### Roadmap Items Covered
-* [ ] Implement MCP server.
-* [ ] Add `workflow_start`.
-* [ ] Add `workflow_status`.
-* [ ] Add `workflow_step`.
-* [ ] Add `workflow_complete_step`.
-* [ ] Add `workflow_human_action`.
+* [x] Implement MCP server.
+* [x] Add `workflow_start`.
+* [x] Add `workflow_status`.
+* [x] Add `workflow_step`.
+* [x] Add `workflow_complete_step`.
+* [x] Add `workflow_human_action`.
 
 ### Scope & Deliverables
 1. **MCP Server Protocol**:
@@ -1853,7 +1853,9 @@ Phase 2 (**Persistence Layer & Durable State Store**) has been implemented and f
 
 Phase 3 (**Workflow Runtime & Transition State Machine**) has been implemented and fully verified with 27 runtime simulation tests covering linear flows, choice branching, review/fix cyclic loops, strict human gate blocking, and state durability.
 
-Phase 4 (**MCP Server & Tool Protocol Surface**) is next.
+Phase 4 (**MCP Server & Tool Protocol Surface**) has been implemented and fully verified with 15 MCP protocol and tool integration tests covering all 5 authoritative tools, JSON-RPC stdio transport, and runtime safety guardrails.
+
+Phase 5 (**CLI, Project Instructions & Setup Tooling**) is next.
 
 ---
 
