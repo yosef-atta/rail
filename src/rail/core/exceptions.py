@@ -74,3 +74,16 @@ class RailValidationError(RailError):
         formatted_errors = "\n".join(f"  - {err}" for err in self.errors)
         full_msg = f"{message}\n{formatted_errors}" if formatted_errors else message
         super().__init__(full_msg)
+
+
+class RailStorageError(RailError):
+    """Base exception for storage and persistence errors."""
+
+
+class RailRunNotFoundError(RailStorageError):
+    """Raised when a requested run_id is not found in the state store."""
+
+    def __init__(self, run_id: str) -> None:
+        self.run_id = run_id
+        super().__init__(f"Workflow run '{run_id}' not found.")
+

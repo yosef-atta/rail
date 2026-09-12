@@ -2,6 +2,8 @@
 
 from rail.core.exceptions import (
     RailError,
+    RailRunNotFoundError,
+    RailStorageError,
     RailValidationError,
     RailWorkflowNotFoundError,
     RailWorkflowParseError,
@@ -36,6 +38,8 @@ __all__ = [
     "EndStep",
     "HumanStep",
     "RailError",
+    "RailRunNotFoundError",
+    "RailStorageError",
     "RailValidationError",
     "RailWorkflowNotFoundError",
     "RailWorkflowParseError",

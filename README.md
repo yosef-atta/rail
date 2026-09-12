@@ -1464,7 +1464,7 @@ The initial milestone proves the core idea.
 * [x] Define and validate Workflow Language v0.1.
 * [x] Load global `.yml` and `.yaml` workflows.
 * [ ] Implement the workflow runtime.
-* [ ] Implement persistent workflow runs.
+* [x] Implement persistent workflow runs.
 * [ ] Implement `main` agent steps.
 * [ ] Implement `subagent` steps.
 * [ ] Implement choice results.
@@ -1625,7 +1625,8 @@ Implement the durable SQLite storage layer that records runs, step executions, o
 * **Why it cannot be deferred past Phase 3**: Rail's central architectural invariant is that *"Workflow State Lives Outside the Agent and Survives Process/Session Restarts"*. If execution logic (Phase 3) is written before persistence, the runtime will inevitably rely on volatile in-memory state, creating fragile abstractions that require invasive refactoring later. Writing the persistence layer first forces the runtime to be state-store-native from line one.
 
 ### Roadmap Items Covered
-* [ ] Implement persistent workflow runs.
+* [x] Implement persistent workflow runs.
+
 
 ### Scope & Deliverables
 1. **SQLite Database Initialization**:
@@ -1848,7 +1849,9 @@ The coding agent remains responsible for performing the engineering work inside 
 
 Phase 1 (**Workflow Specification, Loader & Static Validator**) has been implemented and fully verified with 78 unit tests and 100% validator test coverage.
 
-Phase 2 (**Persistence Layer & Durable State Store**) is next.
+Phase 2 (**Persistence Layer & Durable State Store**) has been implemented and fully verified with 28 storage tests and 100% storage test coverage, including the process crash and exact state recovery acceptance gate.
+
+Phase 3 (**Workflow Runtime & Transition State Machine**) is next.
 
 ---
 
