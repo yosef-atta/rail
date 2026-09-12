@@ -31,3 +31,14 @@ def test_cli_main_syntax_error(tmp_path: Path):
 def test_cli_main_no_args():
     exit_code = main([])
     assert exit_code == 0
+
+
+def test_cli_serve_exit(monkeypatch):
+    """Verify serve command handles KeyboardInterrupt cleanly."""
+    def mock_run_mcp_server(**kwargs):
+        raise KeyboardInterrupt()
+
+    monkeypatch.setattr("rail.mcp.server.run_mcp_server", mock_run_mcp_server)
+    exit_code = main(["serve"])
+    assert exit_code == 0
+
