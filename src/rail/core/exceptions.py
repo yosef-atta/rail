@@ -87,3 +87,99 @@ class RailRunNotFoundError(RailStorageError):
         self.run_id = run_id
         super().__init__(f"Workflow run '{run_id}' not found.")
 
+
+class RailRuntimeError(RailError):
+    """Base exception for workflow runtime execution errors."""
+
+
+class RailWorkflowNotActiveError(RailRuntimeError):
+    """Raised when an operation is attempted on a workflow run that is not active."""
+
+    def __init__(self, run_id: str, status: str, message: Optional[str] = None) -> None:
+        self.run_id = run_id
+        self.status = status
+        default_msg = f"Workflow run '{run_id}' is not active (status: '{status}')."
+        super().__init__(message or default_msg)
+
+
+class RailHumanGateBlockedError(RailRuntimeError):
+    """Raised when an agent attempts to complete or advance a step while blocked at a human gate."""
+
+    def __init__(self, run_id: str, step_id: str, message: Optional[str] = None) -> None:
+        self.run_id = run_id
+        self.step_id = step_id
+        default_msg = (
+            f"Step '{step_id}' in run '{run_id}' is a human gate and cannot be completed by an agent. "
+            "Execution is paused until resolved by human action."
+        )
+        super().__init__(message or default_msg)
+
+
+class RailHumanGateNotActiveError(RailRuntimeError):
+    """Raised when a human action is submitted but the workflow run is not paused on a human step."""
+
+    def __init__(self, run_id: str, current_step: Optional[str], message: Optional[str] = None) -> None:
+        self.run_id = run_id
+        self.current_step = current_step
+        default_msg = (
+            f"Cannot resolve human action for run '{run_id}': active step is '{current_step}', "
+            "which is not a human gate."
+        )
+        super().__init__(message or default_msg)
+
+
+class RailInvalidResultError(RailRuntimeError):
+    """Raised when an agent reports an invalid result for a choice step or reports a result on a linear step."""
+
+    def __init__(
+        self,
+        step_id: str,
+        result: Optional[str],
+        allowed_options: Optional[list[str]] = None,
+        message: Optional[str] = None,
+    ) -> None:
+        self.step_id = step_id
+        self.result = result
+        self.allowed_options = allowed_options or []
+        if message:
+            msg = message
+        elif allowed_options:
+            msg = f"Invalid choice result '{result}' for step '{step_id}'. Allowed options: {allowed_options}."
+        else:
+            msg = f"Step '{step_id}' does not accept a choice result."
+        super().__init__(msg)
+
+
+class RailInvalidActionError(RailRuntimeError):
+    """Raised when an invalid action is submitted to resolve a human gate."""
+
+    def __init__(
+        self,
+        step_id: str,
+        action: str,
+        allowed_actions: Optional[list[str]] = None,
+        message: Optional[str] = None,
+    ) -> None:
+        self.step_id = step_id
+        self.action = action
+        self.allowed_actions = allowed_actions or []
+        if message:
+            msg = message
+        else:
+            msg = f"Invalid human action '{action}' for step '{step_id}'. Allowed actions: {self.allowed_actions}."
+        super().__init__(msg)
+
+
+class RailStepNotFoundError(RailRuntimeError):
+    """Raised when a step cannot be found in the workflow definition."""
+
+    def __init__(self, step_id: str, workflow_name: Optional[str] = None) -> None:
+        self.step_id = step_id
+        self.workflow_name = workflow_name
+        wf_info = f" in workflow '{workflow_name}'" if workflow_name else ""
+        super().__init__(f"Step '{step_id}' not found{wf_info}.")
+
+
+class RailStepExecutionError(RailRuntimeError):
+    """Raised when a step execution invariant is violated (e.g. step mismatch)."""
+
