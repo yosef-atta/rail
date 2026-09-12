@@ -1654,12 +1654,12 @@ Build the core execution engine that drives workflow progression, manages active
 * **Why it cannot be implemented after Phase 4 (MCP) or Phase 5 (CLI)**: MCP tools and CLI inspection commands are merely thin protocol/UI wrappers around the runtime engine. Writing wrappers before the engine exists leads to mocking or duplicate business logic.
 
 ### Roadmap Items Covered
-* [ ] Implement the workflow runtime.
-* [ ] Implement `main` agent steps.
-* [ ] Implement `subagent` steps.
-* [ ] Implement choice results.
-* [ ] Implement human gates.
-* [ ] Implement workflow transitions and loops.
+* [x] Implement the workflow runtime.
+* [x] Implement `main` agent steps.
+* [x] Implement `subagent` steps.
+* [x] Implement choice results.
+* [x] Implement human gates.
+* [x] Implement workflow transitions and loops.
 
 ### Scope & Deliverables
 1. **Run Lifecycle Engine**:
