@@ -53,6 +53,20 @@ def cmd_validate(workflow_name_or_path: str) -> int:
     return 1
 
 
+def cmd_serve(workflows_dir: Optional[str] = None, db_path: Optional[str] = None) -> int:
+    """Run Rail MCP server over stdio transport."""
+    from rail.mcp.server import run_mcp_server
+
+    try:
+        run_mcp_server(workflows_dir=workflows_dir, db_path=db_path)
+        return 0
+    except (KeyboardInterrupt, SystemExit):
+        return 0
+    except Exception as exc:
+        _print_message(f"MCP Server Error: {exc}", file=sys.stderr)
+        return 1
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     """CLI entry point."""
     parser = argparse.ArgumentParser(prog="rail", description="Rail - Workflow runtime for agentic coding tools")
@@ -61,10 +75,16 @@ def main(argv: Optional[List[str]] = None) -> int:
     validate_parser = subparsers.add_parser("validate", help="Validate a workflow definition")
     validate_parser.add_argument("workflow", help="Workflow name or file path (.yaml / .yml)")
 
+    serve_parser = subparsers.add_parser("serve", help="Run MCP server over stdio")
+    serve_parser.add_argument("--workflows-dir", help="Directory containing workflow YAML definitions", default=None)
+    serve_parser.add_argument("--db-path", help="Path to SQLite database file", default=None)
+
     args = parser.parse_args(argv)
 
     if args.command == "validate":
         return cmd_validate(args.workflow)
+    elif args.command == "serve":
+        return cmd_serve(workflows_dir=args.workflows_dir, db_path=args.db_path)
 
     parser.print_help()
     return 0
