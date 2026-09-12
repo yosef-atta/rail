@@ -1463,13 +1463,13 @@ The initial milestone proves the core idea.
 
 * [x] Define and validate Workflow Language v0.1.
 * [x] Load global `.yml` and `.yaml` workflows.
-* [ ] Implement the workflow runtime.
+* [x] Implement the workflow runtime.
 * [x] Implement persistent workflow runs.
-* [ ] Implement `main` agent steps.
-* [ ] Implement `subagent` steps.
-* [ ] Implement choice results.
-* [ ] Implement human gates.
-* [ ] Implement workflow transitions and loops.
+* [x] Implement `main` agent steps.
+* [x] Implement `subagent` steps.
+* [x] Implement choice results.
+* [x] Implement human gates.
+* [x] Implement workflow transitions and loops.
 * [ ] Implement MCP server.
 * [ ] Add `workflow_start`.
 * [ ] Add `workflow_status`.
@@ -1851,7 +1851,9 @@ Phase 1 (**Workflow Specification, Loader & Static Validator**) has been impleme
 
 Phase 2 (**Persistence Layer & Durable State Store**) has been implemented and fully verified with 28 storage tests and 100% storage test coverage, including the process crash and exact state recovery acceptance gate.
 
-Phase 3 (**Workflow Runtime & Transition State Machine**) is next.
+Phase 3 (**Workflow Runtime & Transition State Machine**) has been implemented and fully verified with 27 runtime simulation tests covering linear flows, choice branching, review/fix cyclic loops, strict human gate blocking, and state durability.
+
+Phase 4 (**MCP Server & Tool Protocol Surface**) is next.
 
 ---
 
