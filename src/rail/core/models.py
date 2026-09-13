@@ -15,6 +15,13 @@ class Role(str, Enum):
     SUBAGENT = "subagent"
 
 
+class EndStatus(str, Enum):
+    """Terminal outcome for an end step."""
+
+    COMPLETED = "completed"
+    STOPPED = "stopped"
+
+
 class ChoiceResult(BaseModel):
     """Predefined choice result schema for agent steps."""
 
@@ -54,11 +61,12 @@ class HumanStep(BaseModel):
 
 
 class EndStep(BaseModel):
-    """Marks successful workflow completion."""
+    """Marks workflow termination with an explicit terminal outcome."""
 
     model_config = ConfigDict(extra="allow")
 
     type: Literal["end"] = "end"
+    status: EndStatus = EndStatus.COMPLETED
     next: Optional[str] = None
     transitions: Optional[Dict[str, str]] = None
     prompt: Optional[str] = None
