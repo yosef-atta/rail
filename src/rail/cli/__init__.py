@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, TextIO
 
 from rail.core.exceptions import RailWorkflowNotFoundError, RailWorkflowParseError
 from rail.core.loader import find_workflow_file, list_workflow_files, load_raw_workflow
@@ -37,9 +37,15 @@ Rail is authoritative over workflow execution.
 <!-- RAIL:END -->"""
 
 
-def _print_message(message: str, file=sys.stdout) -> None:
+def _print_message(message: str, file: Optional[TextIO] = None) -> None:
+    """Print a CLI message using the current stdout/stderr stream at call time.
+
+    Resolving stdout lazily keeps the helper compatible with pytest capture and
+    other callers that temporarily replace sys.stdout.
+    """
+    target = file if file is not None else sys.stdout
     try:
-        print(message, file=file)
+        print(message, file=target)
     except UnicodeEncodeError:
         safe_message = (
             message.replace("\u2713", "[OK]")
@@ -47,7 +53,7 @@ def _print_message(message: str, file=sys.stdout) -> None:
             .replace("\u2192", "->")
             .replace("\u25cb", "o")
         )
-        print(safe_message, file=file)
+        print(safe_message, file=target)
 
 
 def _upsert_managed_block(path: Path) -> str:
