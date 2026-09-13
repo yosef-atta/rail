@@ -10,8 +10,7 @@
 
 [CmdletBinding()]
 param (
-    [switch]$SkipInstall,
-    [string]$CustomWorkflowsDir
+    [switch]$SkipInstall
 )
 
 $ErrorActionPreference = "Stop"
@@ -23,11 +22,7 @@ Write-Host "=========================================" -ForegroundColor Cyan
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $userProfile = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile)
 $railHome = Join-Path $userProfile ".rail"
-$workflowsDir = if ($CustomWorkflowsDir) {
-    [System.IO.Path]::GetFullPath($CustomWorkflowsDir)
-} else {
-    Join-Path $railHome "workflows"
-}
+$workflowsDir = Join-Path $railHome "workflows"
 $bundledWorkflowsDir = Join-Path $scriptDir "workflows"
 $defaultWorkflowFiles = @(
     "default-agent.yml",
@@ -87,7 +82,7 @@ Write-Host "---------------------------------------------------------" -Foregrou
 Write-Host "Rail MCP uses stdio." -ForegroundColor White
 Write-Host "Command: rail" -ForegroundColor White
 Write-Host "Args:    serve" -ForegroundColor White
-Write-Host "" 
+Write-Host ""
 Write-Host "Example JSON configuration:" -ForegroundColor Cyan
 $mcpJson = @'
 {
@@ -102,7 +97,7 @@ $mcpJson = @'
 Write-Host $mcpJson -ForegroundColor White
 
 Write-Host "Setup complete." -ForegroundColor Green
-Write-Host "" 
+Write-Host ""
 Write-Host "Available verification commands:" -ForegroundColor Cyan
 Write-Host "  rail workflows" -ForegroundColor White
 Write-Host "  rail validate default-agent" -ForegroundColor White
