@@ -83,9 +83,9 @@ class RailStorageError(RailError):
 class RailRunNotFoundError(RailStorageError):
     """Raised when a requested run_id is not found in the state store."""
 
-    def __init__(self, run_id: str) -> None:
+    def __init__(self, run_id: str, message: Optional[str] = None) -> None:
         self.run_id = run_id
-        super().__init__(f"Workflow run '{run_id}' not found.")
+        super().__init__(message or f"Workflow run '{run_id}' not found.")
 
 
 class RailRuntimeError(RailError):
@@ -98,8 +98,16 @@ class RailWorkflowNotActiveError(RailRuntimeError):
     def __init__(self, run_id: str, status: str, message: Optional[str] = None) -> None:
         self.run_id = run_id
         self.status = status
-        default_msg = f"Workflow run '{run_id}' is not active (status: '{status}')."
-        super().__init__(message or default_msg)
+        if message is None:
+            if status == "completed":
+                message = f"Workflow run '{run_id}' is already completed."
+            elif status == "stopped":
+                message = f"Workflow run '{run_id}' was stopped and is no longer active."
+            elif status == "failed":
+                message = f"Workflow run '{run_id}' has failed."
+            else:
+                message = f"Workflow run '{run_id}' is not active (status: '{status}')."
+        super().__init__(message)
 
 
 class RailHumanGateBlockedError(RailRuntimeError):
@@ -182,4 +190,3 @@ class RailStepNotFoundError(RailRuntimeError):
 
 class RailStepExecutionError(RailRuntimeError):
     """Raised when a step execution invariant is violated (e.g. step mismatch)."""
-

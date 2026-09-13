@@ -14,6 +14,7 @@ class RunStatus(str, Enum):
     RUNNING = "running"
     PAUSED_HUMAN = "paused_human"
     COMPLETED = "completed"
+    STOPPED = "stopped"
     FAILED = "failed"
 
 

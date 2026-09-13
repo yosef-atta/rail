@@ -1,0 +1,139 @@
+version: "0.1"
+
+name: default-agent-github
+
+description: >
+  Fully agent-driven coding workflow with independent planning, verification,
+  review, GitHub delivery, and final reporting.
+
+start: plan
+
+steps:
+  plan:
+    type: agent
+    role: subagent
+    name: planner
+    prompt: |
+      Inspect the repository and the requested task, then create a concrete implementation plan.
+
+      The plan must identify the relevant files and architecture, implementation steps,
+      verification strategy, and important risks or constraints.
+
+      Do not modify project files during this step.
+    next: review_plan
+
+  review_plan:
+    type: agent
+    role: subagent
+    name: plan-reviewer
+    prompt: |
+      Independently review the implementation plan.
+
+      Check that it solves the requested task, fits the existing architecture, avoids
+      unnecessary complexity, covers important edge cases, and includes sufficient verification.
+
+      If the plan is acceptable, return approved.
+      If it is not acceptable, return rejected and clearly explain the reasons in your response.
+      A rejected plan terminates this workflow run; do not implement anything.
+    result:
+      type: choice
+      options:
+        - approved
+        - rejected
+    transitions:
+      approved: code
+      rejected: stopped
+
+  code:
+    type: agent
+    role: subagent
+    name: code
+    prompt: |
+      Implement the approved plan completely and keep the change scoped to the requested task.
+
+      Follow the repository's existing architecture and conventions. Avoid hardcoded shortcuts,
+      unnecessary duplication, and unrelated refactors.
+    next: verify
+
+  verify:
+    type: agent
+    role: subagent
+    name: verifier
+    prompt: |
+      Verify the implementation independently.
+
+      Use the relevant automated tests, browser testing, CLI checks, build/type/lint checks,
+      or other repository-appropriate verification. Do not assume success without exercising
+      the changed behavior.
+
+      If verification passes, return approved.
+      If verification fails, return rejected and clearly report the failures and evidence.
+      A rejection terminates this workflow run.
+    result:
+      type: choice
+      options:
+        - approved
+        - rejected
+    transitions:
+      approved: review
+      rejected: stopped
+
+  review:
+    type: agent
+    role: subagent
+    name: reviewer
+    prompt: |
+      Review the completed implementation independently for engineering quality.
+
+      Check correctness, code clarity, duplicated definitions, hardcoding, unnecessary complexity,
+      architectural fit, regressions, maintainability, and whether the implementation matches the
+      approved plan and requested scope.
+
+      If the implementation is acceptable, return approved.
+      If it is not acceptable, return rejected and clearly explain the issues.
+      A rejection terminates this workflow run.
+    result:
+      type: choice
+      options:
+        - approved
+        - rejected
+    transitions:
+      approved: github
+      rejected: stopped
+
+  github:
+    type: agent
+    role: subagent
+    name: github
+    prompt: |
+      Deliver the verified and approved implementation through GitHub.
+
+      1. Commit the implementation with an appropriate commit message.
+      2. Push the current feature branch.
+      3. Open a pull request to the intended base branch.
+      4. Merge the pull request using a normal merge commit.
+      5. Never use squash merge.
+      6. Never use rebase merge.
+      7. Switch to the base branch after the merge.
+      8. Pull the latest base branch state.
+
+      Stop and report clearly if any GitHub operation cannot be completed safely.
+    next: report
+
+  report:
+    type: agent
+    role: subagent
+    name: reporter
+    prompt: |
+      Analyze the final repository and GitHub state after delivery.
+
+      Return a concise final report covering what changed, verification performed,
+      pull request and merge result, final branch state, and any important follow-up notes.
+    next: done
+
+  stopped:
+    type: end
+    status: stopped
+
+  done:
+    type: end
