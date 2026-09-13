@@ -170,3 +170,21 @@ def test_setup_script_seeds_only_official_defaults():
     assert "careful-feature.yaml" not in content
     assert '"default.yaml"' not in content
     assert "rail workflows" in content
+
+
+def test_setup_script_supports_remote_execution():
+    content = (REPO_ROOT / "setup.ps1").read_text(encoding="utf-8")
+    assert "$scriptPath = $MyInvocation.MyCommand.Path" in content
+    assert "if ($scriptPath -and (Test-Path -LiteralPath $scriptPath))" in content
+    assert "raw.githubusercontent.com/$repoOwner/$repoName/$repoBranch" in content
+    assert 'Invoke-WebRequest -UseBasicParsing -Uri $workflowUrl -OutFile $destinationPath' in content
+    assert 'git+https://github.com/$repoOwner/$repoName.git' in content
+
+
+def test_uninstall_script_removes_cli_and_global_state():
+    content = (REPO_ROOT / "uninstall.ps1").read_text(encoding="utf-8")
+    assert "uv tool uninstall rail" in content
+    assert "python -m pip uninstall -y rail" in content
+    assert 'Join-Path $userProfile ".rail"' in content
+    assert "Remove-Item -LiteralPath $railHome -Recurse -Force" in content
+    assert "MCP client configuration was not modified" in content

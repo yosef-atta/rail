@@ -4,8 +4,13 @@
 
 .DESCRIPTION
     Ensures ~/.rail/workflows exists, seeds the three official default workflows
-    without overwriting user-edited copies, optionally installs Rail locally,
-    and prints MCP stdio configuration guidance.
+    without overwriting user-edited copies, installs Rail, and prints MCP stdio
+    configuration guidance.
+
+    The script supports both local execution from a cloned Rail repository and
+    remote execution through:
+
+        irm https://raw.githubusercontent.com/yosef-atta/rail/main/setup.ps1 | iex
 #>
 
 [CmdletBinding()]
@@ -15,15 +20,28 @@ param (
 
 $ErrorActionPreference = "Stop"
 
+$repoOwner = "yosef-atta"
+$repoName = "rail"
+$repoBranch = "main"
+$repoGitUrl = "git+https://github.com/$repoOwner/$repoName.git"
+$rawBaseUrl = "https://raw.githubusercontent.com/$repoOwner/$repoName/$repoBranch"
+
+$scriptPath = $MyInvocation.MyCommand.Path
+$isLocalRepoExecution = $false
+$scriptDir = $null
+
+if ($scriptPath -and (Test-Path -LiteralPath $scriptPath)) {
+    $scriptDir = Split-Path -Parent $scriptPath
+    $isLocalRepoExecution = Test-Path -LiteralPath (Join-Path $scriptDir "pyproject.toml")
+}
+
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host "         Rail Setup & Configuration      " -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
 
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $userProfile = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile)
 $railHome = Join-Path $userProfile ".rail"
 $workflowsDir = Join-Path $railHome "workflows"
-$bundledWorkflowsDir = Join-Path $scriptDir "workflows"
 $defaultWorkflowFiles = @(
     "default-agent.yml",
     "default-agent-github.yml",
@@ -40,19 +58,24 @@ if (-not (Test-Path -LiteralPath $workflowsDir)) {
 
 Write-Host "`n[2/4] Seeding official default workflows..." -ForegroundColor Yellow
 foreach ($workflowFile in $defaultWorkflowFiles) {
-    $sourcePath = Join-Path $bundledWorkflowsDir $workflowFile
     $destinationPath = Join-Path $workflowsDir $workflowFile
-
-    if (-not (Test-Path -LiteralPath $sourcePath)) {
-        throw "Bundled workflow is missing: $sourcePath"
-    }
 
     if (Test-Path -LiteralPath $destinationPath) {
         Write-Host "  $workflowFile already exists (preserving)" -ForegroundColor Gray
         continue
     }
 
-    Copy-Item -LiteralPath $sourcePath -Destination $destinationPath
+    if ($isLocalRepoExecution) {
+        $sourcePath = Join-Path (Join-Path $scriptDir "workflows") $workflowFile
+        if (-not (Test-Path -LiteralPath $sourcePath)) {
+            throw "Bundled workflow is missing: $sourcePath"
+        }
+        Copy-Item -LiteralPath $sourcePath -Destination $destinationPath
+    } else {
+        $workflowUrl = "$rawBaseUrl/workflows/$workflowFile"
+        Invoke-WebRequest -UseBasicParsing -Uri $workflowUrl -OutFile $destinationPath
+    }
+
     Write-Host "  Seeded $workflowFile" -ForegroundColor Green
 }
 
@@ -60,15 +83,27 @@ Write-Host "`n[3/4] Installing / verifying Rail CLI..." -ForegroundColor Yellow
 if ($SkipInstall) {
     Write-Host "  Skipping package installation as requested." -ForegroundColor Gray
 } elseif (Get-Command "uv" -ErrorAction SilentlyContinue) {
-    Write-Host "  Installing Rail as an editable uv tool from $scriptDir..." -ForegroundColor Gray
-    & uv tool install --editable $scriptDir --force
+    if ($isLocalRepoExecution) {
+        Write-Host "  Installing Rail as an editable uv tool from $scriptDir..." -ForegroundColor Gray
+        & uv tool install --editable $scriptDir --force
+    } else {
+        Write-Host "  Installing Rail from GitHub with uv..." -ForegroundColor Gray
+        & uv tool install $repoGitUrl --force
+    }
+
     if ($LASTEXITCODE -ne 0) {
         throw "uv tool install failed with exit code $LASTEXITCODE"
     }
     Write-Host "  Installed Rail CLI via uv." -ForegroundColor Green
 } elseif (Get-Command "pip" -ErrorAction SilentlyContinue) {
-    Write-Host "  Installing Rail with pip from $scriptDir..." -ForegroundColor Gray
-    & pip install -e $scriptDir
+    if ($isLocalRepoExecution) {
+        Write-Host "  Installing Rail with pip from $scriptDir..." -ForegroundColor Gray
+        & pip install -e $scriptDir
+    } else {
+        Write-Host "  Installing Rail from GitHub with pip..." -ForegroundColor Gray
+        & pip install $repoGitUrl
+    }
+
     if ($LASTEXITCODE -ne 0) {
         throw "pip install failed with exit code $LASTEXITCODE"
     }
