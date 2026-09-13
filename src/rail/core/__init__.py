@@ -29,20 +29,19 @@ from rail.core.loader import (
 from rail.core.models import (
     AgentStep,
     ChoiceResult,
+    EndStatus,
     EndStep,
     HumanStep,
     Role,
     Step,
     Workflow,
 )
-from rail.core.validator import (
-    StaticValidator,
-    validate_workflow,
-)
+from rail.core.validator import StaticValidator, validate_workflow
 
 __all__ = [
     "AgentStep",
     "ChoiceResult",
+    "EndStatus",
     "EndStep",
     "HumanStep",
     "RailError",
