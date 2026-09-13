@@ -1,0 +1,107 @@
+version: "0.1"
+
+name: default-human
+
+description: >
+  Human-supervised coding workflow with plan approval and a manual final
+  verification/review loop before commit and reporting.
+
+start: plan
+
+steps:
+  plan:
+    type: agent
+    role: main
+    prompt: |
+      Inspect the repository and the requested task, then create a concrete implementation plan.
+
+      The plan must identify the relevant files and architecture, implementation steps,
+      verification strategy, and important risks or constraints.
+
+      Do not modify project files during this step.
+    next: human_plan_review
+
+  human_plan_review:
+    type: human
+    message: |
+      Review the proposed implementation plan.
+
+      Approve it to continue, or reject it with the reasons that must be addressed.
+      A rejection returns the workflow to planning so the plan can be revised.
+    transitions:
+      approve: code
+      reject: plan
+
+  code:
+    type: agent
+    role: main
+    prompt: |
+      Implement the approved plan completely and keep the change scoped to the requested task.
+
+      Follow the repository's existing architecture and conventions. Avoid hardcoded shortcuts,
+      unnecessary duplication, and unrelated refactors.
+    next: verify
+
+  verify:
+    type: agent
+    role: main
+    prompt: |
+      Verify the implementation using the checks appropriate for this repository.
+
+      Use automated tests, browser testing, CLI checks, build/type/lint checks, or other relevant
+      verification. If verification finds a problem, return changes_required and explain the failure.
+      If verification passes, return approved.
+    result:
+      type: choice
+      options:
+        - approved
+        - changes_required
+    transitions:
+      approved: review
+      changes_required: code
+
+  review:
+    type: agent
+    role: main
+    prompt: |
+      Review the implementation for engineering quality.
+
+      Check correctness, code clarity, duplicated definitions, hardcoding, unnecessary complexity,
+      architectural fit, regressions, maintainability, and whether the implementation matches the
+      approved plan and requested scope.
+
+      If issues require code changes, return changes_required and explain them.
+      Otherwise return approved.
+    result:
+      type: choice
+      options:
+        - approved
+        - changes_required
+    transitions:
+      approved: human_manual_review
+      changes_required: code
+
+  human_manual_review:
+    type: human
+    message: |
+      Manually verify and review the completed implementation.
+
+      Approve it if the behavior and code are acceptable. Reject it with the reasons that must be
+      addressed if more work is required. A rejection returns the workflow to code, then repeats
+      code -> verify -> review -> human manual review.
+    transitions:
+      approve: finalize
+      reject: code
+
+  finalize:
+    type: agent
+    role: main
+    prompt: |
+      Commit the approved implementation with an appropriate commit message.
+
+      Return a concise final report covering what changed, verification performed,
+      important implementation notes, and the commit created.
+    next: done
+
+  done:
+    type: end
