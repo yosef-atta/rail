@@ -83,9 +83,9 @@ class RailStorageError(RailError):
 class RailRunNotFoundError(RailStorageError):
     """Raised when a requested run_id is not found in the state store."""
 
-    def __init__(self, run_id: str) -> None:
+    def __init__(self, run_id: str, message: Optional[str] = None) -> None:
         self.run_id = run_id
-        super().__init__(f"Workflow run '{run_id}' not found.")
+        super().__init__(message or f"Workflow run '{run_id}' not found.")
 
 
 class RailRuntimeError(RailError):
